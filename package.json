@@ -29,7 +29,29 @@
         "onLanguage:less"
     ],
     "main": "./dist/extension.js",
-    "contributes": {},
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Layout Lens",
+            "properties": {
+                "layout-lens.enableFlexbox": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable Flexbox highlighting"
+                },
+                "layout-lens.enableGrid": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable Grid highlighting"
+                },
+                "layout-lens.enableCommon": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "Enable highlighting of properties common to both Flexbox and Grid containers, e.g. `display`, `align-items`, etc."
+                }
+            }
+        }
+    },
     "scripts": {
         "vscode:prepublish": "pnpm run package",
         "compile": "webpack",

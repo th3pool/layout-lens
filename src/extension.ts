@@ -1,4 +1,10 @@
+import { log } from 'console';
 import * as vscode from 'vscode';
+
+let config = vscode.workspace.getConfiguration('layout-lens');
+let enableFlex = config.get('enableFlex', true);
+let enableGrid = config.get('enableGrid', true);
+let enableCommon = config.get('enableCommon', true);
 
 export function activate(context: vscode.ExtensionContext) {
     const flexParentDecorator = vscode.window.createTextEditorDecorationType({
@@ -45,9 +51,9 @@ export function activate(context: vscode.ExtensionContext) {
 
         // Child properties
         const flexChildProps =
-            /\b(order|flex-grow|flex-shrink|flex-basis|flex|align-self)\b\s*:/g;
+            /\b(order|flex-grow|flex-shrink|flex-basis|flex)\b\s*:/g;
         const gridChildProps =
-            /\b(grid-row|grid-column|grid-row-start|grid-row-end|grid-column-start|grid-column-end|grid-area|justify-self|align-self|place-self)\b\s*:/g;
+            /\b(grid-row|grid-column|grid-row-start|grid-row-end|grid-column-start|grid-column-end|grid-area|justify-self|place-self)\b\s*:/g;
         const commonChildProps = /\b(align-self)\b\s*:/g;
 
         const flexContainerMatches: vscode.DecorationOptions[] = [];
@@ -58,78 +64,126 @@ export function activate(context: vscode.ExtensionContext) {
         const commonParentMatches: vscode.DecorationOptions[] = [];
         const commonChildMatches: vscode.DecorationOptions[] = [];
 
+        if (!enableCommon && !enableFlex && !enableGrid) {
+            log('All features are disabled in settings.');
+            return;
+        }
+
+        log('Updating decorations...');
+        log(`Document has ${editor.document.lineCount} lines.`);
+        log(`Flex highlighting is ${enableFlex ? 'enabled' : 'disabled'}.`);
+        log(`Grid highlighting is ${enableGrid ? 'enabled' : 'disabled'}.`);
+        log(
+            `Common properties highlighting is ${
+                enableCommon ? 'enabled' : 'disabled'
+            }.`
+        );
+
         for (let line = 0; line < editor.document.lineCount; line++) {
             const lineText = editor.document.lineAt(line).text;
             let match: RegExpExecArray | null;
 
-            while ((match = flexContainerProps.exec(lineText))) {
-                const startPosition = new vscode.Position(line, match.index);
-                const endPosition = new vscode.Position(
-                    line,
-                    match.index + match[0].length
+            if (enableFlex) {
+                while ((match = flexContainerProps.exec(lineText))) {
+                    const startPosition = new vscode.Position(
+                        line,
+                        match.index
+                    );
+                    const endPosition = new vscode.Position(
+                        line,
+                        match.index + match[0].length
+                    );
+                    flexContainerMatches.push({
+                        range: new vscode.Range(startPosition, endPosition),
+                    });
+                }
+                while ((match = flexChildProps.exec(lineText))) {
+                    const startPosition = new vscode.Position(
+                        line,
+                        match.index
+                    );
+                    const endPosition = new vscode.Position(
+                        line,
+                        match.index + match[0].length
+                    );
+                    flexChildMatches.push({
+                        range: new vscode.Range(startPosition, endPosition),
+                    });
+                }
+                editor.setDecorations(
+                    flexParentDecorator,
+                    flexContainerMatches
                 );
-                flexContainerMatches.push({
-                    range: new vscode.Range(startPosition, endPosition),
-                });
+                editor.setDecorations(flexChildDecorator, flexChildMatches);
             }
-            while ((match = flexChildProps.exec(lineText))) {
-                const startPosition = new vscode.Position(line, match.index);
-                const endPosition = new vscode.Position(
-                    line,
-                    match.index + match[0].length
+            if (enableGrid) {
+                while ((match = gridContainerProps.exec(lineText))) {
+                    const startPosition = new vscode.Position(
+                        line,
+                        match.index
+                    );
+                    const endPosition = new vscode.Position(
+                        line,
+                        match.index + match[0].length
+                    );
+                    gridContainerMatches.push({
+                        range: new vscode.Range(startPosition, endPosition),
+                    });
+                }
+                while ((match = gridChildProps.exec(lineText))) {
+                    const startPosition = new vscode.Position(
+                        line,
+                        match.index
+                    );
+                    const endPosition = new vscode.Position(
+                        line,
+                        match.index + match[0].length
+                    );
+                    gridChildMatches.push({
+                        range: new vscode.Range(startPosition, endPosition),
+                    });
+                }
+                editor.setDecorations(
+                    gridParentDecorator,
+                    gridContainerMatches
                 );
-                flexChildMatches.push({
-                    range: new vscode.Range(startPosition, endPosition),
-                });
+                editor.setDecorations(gridChildDecorator, gridChildMatches);
             }
-            while ((match = gridContainerProps.exec(lineText))) {
-                const startPosition = new vscode.Position(line, match.index);
-                const endPosition = new vscode.Position(
-                    line,
-                    match.index + match[0].length
-                );
-                gridContainerMatches.push({
-                    range: new vscode.Range(startPosition, endPosition),
-                });
+            if (enableCommon) {
+                while ((match = commonContainerProps.exec(lineText))) {
+                    const startPosition = new vscode.Position(
+                        line,
+                        match.index
+                    );
+                    const endPosition = new vscode.Position(
+                        line,
+                        match.index + match[0].length
+                    );
+                    commonParentMatches.push({
+                        range: new vscode.Range(startPosition, endPosition),
+                    });
+                }
+                while ((match = commonChildProps.exec(lineText))) {
+                    const startPosition = new vscode.Position(
+                        line,
+                        match.index
+                    );
+                    const endPosition = new vscode.Position(
+                        line,
+                        match.index + match[0].length
+                    );
+                    commonChildMatches.push({
+                        range: new vscode.Range(startPosition, endPosition),
+                    });
+                }
+                editor.setDecorations(commonParentDecor, commonParentMatches);
+                editor.setDecorations(commonChildDecor, commonChildMatches);
             }
-            while ((match = gridChildProps.exec(lineText))) {
-                const startPosition = new vscode.Position(line, match.index);
-                const endPosition = new vscode.Position(
-                    line,
-                    match.index + match[0].length
-                );
-                gridChildMatches.push({
-                    range: new vscode.Range(startPosition, endPosition),
-                });
-            }
-            while ((match = commonContainerProps.exec(lineText))) {
-                const startPosition = new vscode.Position(line, match.index);
-                const endPosition = new vscode.Position(
-                    line,
-                    match.index + match[0].length
-                );
-                commonParentMatches.push({
-                    range: new vscode.Range(startPosition, endPosition),
-                });
-            }
-            while ((match = commonChildProps.exec(lineText))) {
-                const startPosition = new vscode.Position(line, match.index);
-                const endPosition = new vscode.Position(
-                    line,
-                    match.index + match[0].length
-                );
-                commonChildMatches.push({
-                    range: new vscode.Range(startPosition, endPosition),
-                });
-            }
-            editor.setDecorations(flexParentDecorator, flexContainerMatches);
-            editor.setDecorations(flexChildDecorator, flexChildMatches);
-            editor.setDecorations(gridParentDecorator, gridContainerMatches);
-            editor.setDecorations(gridChildDecorator, gridChildMatches);
-            editor.setDecorations(commonParentDecor, commonParentMatches);
-            editor.setDecorations(commonChildDecor, commonChildMatches);
         }
+        log('Decorations updated.');
     }
+
+    // Event subscriptions
     vscode.window.onDidChangeActiveTextEditor(
         (editor) => {
             if (editor) {
@@ -169,4 +223,34 @@ export function activate(context: vscode.ExtensionContext) {
     if (vscode.window.activeTextEditor) {
         updateDecorations(vscode.window.activeTextEditor);
     }
+    vscode.workspace.onDidChangeConfiguration((e) => {
+        config = vscode.workspace.getConfiguration('layout-lens');
+
+        log('Configuration changed.');
+        if (e.affectsConfiguration('layout-lens.enableFlexbox')) {
+            enableFlex = config.get('enableFlexbox', true);
+            log(
+                `Flexbox highlighting is now ${
+                    enableFlex ? 'enabled' : 'disabled'
+                }.`
+            );
+        }
+        if (e.affectsConfiguration('layout-lens.enableGrid')) {
+            enableGrid = config.get('enableGrid', true);
+            log(
+                `Grid highlighting is now ${
+                    enableGrid ? 'enabled' : 'disabled'
+                }.`
+            );
+        }
+        if (e.affectsConfiguration('layout-lens.enableCommon')) {
+            enableCommon = config.get('enableCommon', true);
+            log(
+                `Common properties highlighting is now ${
+                    enableCommon ? 'enabled' : 'disabled'
+                }.`
+            );
+        }
+        updateDecorations(vscode.window.activeTextEditor!);
+    });
 }
