@@ -1,26 +1,23 @@
 # FlexGrid Decorator
 
-<!-- Visualize CSS Flexbox and Grid properties directly in VS Code. Highlights container and child properties with distinct colors, including shared properties between flex and grid. -->
+<!-- repo: https://github.com/th3pool/layout-lens -->
+<!-- Marketplace link https://marketplace.visualstudio.com/items?itemName=th3pool.layout-lens -->
+<!-- id: th3pool.layout-lens -->
+<!-- Badges -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Better visualization of CSS Flexbox and Grid properties, color-coded for easy identification of containers and children, including shared properties.
 
 ## Features
 
-- Flex container (parent) → **blue with dotted border**  
-- Flex child (item) → **light blue, no border**  
-- Grid container (parent) → **red with dotted border**  
-- Grid child (item) → **light red, no border**  
-- Common container (flex + grid) → **yellow with dotted border**  
-- Common child (flex + grid) → **light yellow, no border**  
-
-![Example](./media/flxvsgrid.png)
-
 **Rule of thumb:**  
 
-<!-- - **Color** = layout type (blue = flex, red = grid, yellow = shared)   -->
-- **Color** = If it is blue its flex, if it is red its grid, if it is yellow its shared
+- **Blue background** = is a flexbox property
+- **Red background** = is a grid property
+- **Yellow background** = is a shared property (flexbox & grid)
 - **Dotted border** = is a container/parent property
-- **No border** = is a child/item property
+
+![Example](./media/flxvsgrid.png)
 
 ## Usage
 
@@ -28,19 +25,32 @@ Better visualization of CSS Flexbox and Grid properties, color-coded for easy id
 - The extension automatically highlights flex/grid properties according to the above scheme.
 - Shared properties (`align-items`, `justify-content`, etc.) are highlighted in yellow.
 
+### Why did I made this extension?
+
+I often find myself confused about whether a property applies to flexbox or grid, so I created this extension to help me quickly identify them while coding. Feel free to use it if you find it helpful!
+
 ## Extension Settings
 
-Currently, there are no configurable settings. Future versions may include:
+- `layoutLens.enableCommon`: Toggle the visibility of shared properties among flex and grid (default: `false`).
+- `layoutLens.enableFlexbox`: Toggle the visibility of flexbox properties (default: `true`).
+- `layoutLens.enableGrid`: Toggle the visibility of grid properties (default: `true`).
 
-- Custom colors for each category.
-- Additional layout systems.
+## This extension is available on
 
-## Contributing
+- [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=th3pool.layout-lens)
+- [Open VSX Registry](https://open-vsx.org/extension/th3pool/layout-lens)
 
-1. Fork the repository.
-2. Make changes in `src/extension.ts`.
-3. Test using the Extension Development Host.
-4. Submit a pull request.
+## Icons
+
+The terrific icon used in this extension was made by me, and I hereby release it into the public domain. Feel free to use it for any purpose, if you have a better one, please open a PR.
+
+## Change Log
+
+All notable changes to the "layout-lens" extension will be documented in the file [CHANGELOG.md](./CHANGELOG.md).
+
+## Known Issues
+
+Please report any issues or feature requests on the [GitHub repository](https://github.com/th3pool/layout-lens).
 
 ## License
 

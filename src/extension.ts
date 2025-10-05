@@ -1,10 +1,12 @@
 import { log } from 'console';
 import * as vscode from 'vscode';
-
-let config = vscode.workspace.getConfiguration('layout-lens');
-let enableFlex = config.get('enableFlex', true);
-let enableGrid = config.get('enableGrid', true);
-let enableCommon = config.get('enableCommon', true);
+import {
+    config,
+    enableCommon,
+    enableFlex,
+    enableGrid,
+    updateConfigs,
+} from './configs';
 
 export function activate(context: vscode.ExtensionContext) {
     const flexParentDecorator = vscode.window.createTextEditorDecorationType({
@@ -39,6 +41,14 @@ export function activate(context: vscode.ExtensionContext) {
         ) {
             return;
         }
+        // Remove previous decorations
+        editor.setDecorations(flexParentDecorator, []);
+        editor.setDecorations(gridParentDecorator, []);
+        editor.setDecorations(commonParentDecor, []);
+        editor.setDecorations(flexChildDecorator, []);
+        editor.setDecorations(gridChildDecorator, []);
+        editor.setDecorations(commonChildDecor, []);
+
         const text = editor.document.getText();
 
         // Container properties
@@ -64,10 +74,10 @@ export function activate(context: vscode.ExtensionContext) {
         const commonParentMatches: vscode.DecorationOptions[] = [];
         const commonChildMatches: vscode.DecorationOptions[] = [];
 
-        if (!enableCommon && !enableFlex && !enableGrid) {
-            log('All features are disabled in settings.');
-            return;
-        }
+        // if (!enableCommon && !enableFlex && !enableGrid) {
+        //     log('All features are disabled in settings.');
+        //     return;
+        // }
 
         log('Updating decorations...');
         log(`Document has ${editor.document.lineCount} lines.`);
@@ -220,37 +230,26 @@ export function activate(context: vscode.ExtensionContext) {
         context.subscriptions
     );
 
+    vscode.workspace.onDidChangeTextDocument(
+        (event) => {
+            const editor = vscode.window.visibleTextEditors.find(
+                (e) => e.document === event.document
+            );
+            if (editor) {
+                updateDecorations(editor);
+            }
+        },
+        null,
+        context.subscriptions
+    );
+
     if (vscode.window.activeTextEditor) {
         updateDecorations(vscode.window.activeTextEditor);
     }
     vscode.workspace.onDidChangeConfiguration((e) => {
-        config = vscode.workspace.getConfiguration('layout-lens');
-
-        log('Configuration changed.');
-        if (e.affectsConfiguration('layout-lens.enableFlexbox')) {
-            enableFlex = config.get('enableFlexbox', true);
-            log(
-                `Flexbox highlighting is now ${
-                    enableFlex ? 'enabled' : 'disabled'
-                }.`
-            );
-        }
-        if (e.affectsConfiguration('layout-lens.enableGrid')) {
-            enableGrid = config.get('enableGrid', true);
-            log(
-                `Grid highlighting is now ${
-                    enableGrid ? 'enabled' : 'disabled'
-                }.`
-            );
-        }
-        if (e.affectsConfiguration('layout-lens.enableCommon')) {
-            enableCommon = config.get('enableCommon', true);
-            log(
-                `Common properties highlighting is now ${
-                    enableCommon ? 'enabled' : 'disabled'
-                }.`
-            );
-        }
-        updateDecorations(vscode.window.activeTextEditor!);
+        updateConfigs(e);
+        vscode.window.visibleTextEditors.forEach((editor) => {
+            updateDecorations(editor);
+        });
     });
 }

@@ -1,7 +1,7 @@
 {
     "name": "layout-lens",
     "displayName": "Layout Lens for CSS",
-    "description": "Highlight Flexbox and Grid properties",
+    "description": "Highlight Flexbox and Grid properties in your CSS, SCSS, and LESS files.",
     "author": {
         "email": "th3fishMk@proton.me",
         "name": "th3fishMk",
@@ -16,7 +16,7 @@
     "license": "MIT",
     "readme": "README.md",
     "preview": true,
-    "version": "0.0.1",
+    "version": "0.1.1",
     "engines": {
         "vscode": "^1.104.0"
     },
@@ -27,6 +27,14 @@
         "onLanguage:css",
         "onLanguage:scss",
         "onLanguage:less"
+    ],
+    "keywords": [
+        "css",
+        "flexbox",
+        "grid",
+        "layout",
+        "web",
+        "frontend"
     ],
     "main": "./dist/extension.js",
     "contributes": {
